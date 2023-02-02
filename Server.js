@@ -33,11 +33,11 @@ module.exports = class Server {
 
   }
 
-  writeLog() {
+  writeServerLog() {
 
   }
 
-  readLog() {
+  readServerLog() {
 
   }
 

@@ -1,3 +1,5 @@
+const fs = require('fs').promises;
+const path = require('path');
 const Container = require('../Container');
 
 describe('Класс Container', () => {
@@ -24,8 +26,6 @@ describe('Класс Container', () => {
   })
 
   describe('Информация о контейнере', () => {
-
-
     it('Получение описания контейнера', () => {
       containerInstance.baseImage = 'ubuntu'
       containerInstance.architecture = 'ARM'
@@ -33,8 +33,26 @@ describe('Класс Container', () => {
       expect(containerInstance.getInfo()).toBe('*** Container: baseImage: ubuntu, architecture: ARM ***');
     })
 
-    it('Получение версии контейнера', () => {
-      expect(containerInstance.version).toBe('1.0.0');
+    it('Получение версии контейнера (getter)', () => {
+      expect(containerInstance.version).toBe('version 1.0.0');
+    })
+
+    it('Установка версии контейнера (setter)', () => {
+      containerInstance.version = '1.1.0'
+      expect(containerInstance.version).toBe('version 1.1.0');
     })
   })
+
+  // describe('Логи', () => {
+
+  //   beforeEach(() => {
+  //     containerInstance.writeContainerLog();
+  //   })
+
+  //   it('Создаётся папка /logs/containers на одном уровне с папкой /spec', async () => {
+
+  //     const logFolder = path.join(__dirname, '..', 'logs', 'container');
+  //     await fs.access(logFolder, fs.constants.R_OK);
+  //   })
+  // })
 })
