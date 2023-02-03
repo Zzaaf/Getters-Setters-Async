@@ -27,8 +27,8 @@ describe('Класс Container', () => {
 
   describe('Информация о контейнере', () => {
     it('Получение описания контейнера', () => {
-      containerInstance.baseImage = 'ubuntu'
-      containerInstance.architecture = 'ARM'
+      containerInstance.baseImage = 'ubuntu';
+      containerInstance.architecture = 'ARM';
 
       expect(containerInstance.getInfo()).toBe('*** Container: baseImage: ubuntu, architecture: ARM ***');
     })
@@ -38,8 +38,9 @@ describe('Класс Container', () => {
     })
 
     it('Установка версии контейнера (setter)', () => {
-      containerInstance.version = '1.1.0'
-      expect(containerInstance.version).toBe('version 1.1.0');
+      containerInstance.version = 1.1;
+      expect(typeof containerInstance.version).toBe('string');
+      expect(containerInstance.version).toBe('version 1.1');
     })
   })
 

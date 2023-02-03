@@ -23,6 +23,10 @@ module.exports = class Container {
   }
 
   set version(value) {
-    this.#version = `version ${value}`;
+    if (typeof value === 'number') {
+      this.#version = `version ${value}`;
+    }
   }
 };
+
+
