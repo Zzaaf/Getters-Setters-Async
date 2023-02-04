@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 
 module.exports = class Container {
-  #version = 'version 1.0.0';
+  #version = 'version 1.0';
 
   constructor({ baseImage, architecture } = {}) {
     this.baseImage = baseImage ?? 'node';

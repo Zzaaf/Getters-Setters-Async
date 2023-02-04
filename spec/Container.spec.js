@@ -34,7 +34,7 @@ describe('Класс Container', () => {
     })
 
     it('Получение версии контейнера (getter)', () => {
-      expect(containerInstance.version).toBe('version 1.0.0');
+      expect(containerInstance.version).toBe('version 1.0');
     })
 
     it('Установка версии контейнера (setter)', () => {

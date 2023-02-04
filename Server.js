@@ -1,6 +1,9 @@
 module.exports = class Server {
+
+  #status = 'offline';
+
   constructor({ status, os, cpu, cores, allContainers, runContainers } = {}) {
-    this.status = status ?? 'Offline';
+    this.#status = status ?? 'offline';
     this.os = os;
     this.cpu = cpu;
     this.cores = cores;
@@ -9,20 +12,29 @@ module.exports = class Server {
   }
 
   get info() {
-    if (this.status === 'offline') {
-      return `Server: ${this.status}, cpu: ${this.cpu}`
+    if (this.#status === 'offline') {
+      return `Server: ${this.#status}, cpu: ${this.cpu}`
     } else {
-      return `Server: ${this.status}, cpu: ${this.cpu}, runContainers: ${this.getRunContainers()}`
+      return `Server: ${this.#status}, cpu: ${this.cpu}, runContainers: ${this.getRunContainers()}`
     }
+  }
 
+  get status() {
+    return this.#status;
+  }
+
+  set status(value) {
+    if (value) {
+      return this.#status;
+    }
   }
 
   startServer() {
-    return this.status = 'Online';
+    return this.#status = 'online';
   }
 
   stopServer() {
-    return this.status = 'Offline';
+    return this.#status = 'offline';
   }
 
   getRunContainers() {
@@ -40,5 +52,4 @@ module.exports = class Server {
   readServerLog() {
 
   }
-
 };

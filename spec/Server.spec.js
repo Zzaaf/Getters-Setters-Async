@@ -9,7 +9,7 @@ describe('Класс Server', () => {
     })
 
     it('Функционал запуска сервера, меняется статус', () => {
-      const status = 'Online';
+      const status = 'online';
       expect(serverInstance.status).toBe(status);
     });
   })
@@ -21,8 +21,15 @@ describe('Класс Server', () => {
 
 
     it('Функционал остановки сервера, меняется статус', () => {
-      const status = 'Offline';
+      const status = 'offline';
       expect(serverInstance.stopServer()).toBe(status);
     });
+  })
+
+  describe('Защита от переопределения статуса сервера вручную', () => {
+    serverInstance.startServer();
+
+    serverInstance.status = 'work'
+    expect(serverInstance.status).toBe('online')
   })
 })
