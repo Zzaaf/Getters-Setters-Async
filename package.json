@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test-part-1": "jest /spec/Server.spec.js -i",
+    "test-part-2": "jest /spec/Container.spec.js -i",
+    "test-part-3": "jest /spec/Cleaner.spec.js -i",
+    "test": "npm run test-part-1 && npm run test-part-2 && npm run test-part-3"
   },
   "keywords": [],
   "author": "",
