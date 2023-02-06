@@ -1,7 +1,13 @@
 const fs = require('fs').promises;
 
 module.exports = class Cleaner {
-  static removeFolderOrFile(path) {
+  static removeFile(path) {
     fs.unlink(path);
+    return true;
+  };
+
+  static removeFolder(path) {
+    fs.rmdir(path);
+    return true;
   };
 };
