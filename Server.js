@@ -43,8 +43,8 @@ module.exports = class Server {
     return this.allContainers.push(container);
   };
 
-  delContainer(container) {
-    return this.allContainers = this.allContainers.filter(c => c.baseImage !== container);
+  delContainer(id) {
+    return this.allContainers = this.allContainers.filter(container => container.id !== id);
   };
 
   async writeServerLog() {

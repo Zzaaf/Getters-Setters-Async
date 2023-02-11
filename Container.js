@@ -5,10 +5,11 @@ const os = require('os');
 module.exports = class Container {
   #version;
 
-  constructor({ baseImage, architecture, version } = {}) {
+  constructor({ baseImage, architecture, version, id } = {}) {
     this.baseImage = baseImage ?? 'node';
     this.architecture = architecture ?? 'x86-64';
     this.#version = version ?? '1.0';
+    this.id = id;
   };
 
   getInfo() {
