@@ -1,31 +1,53 @@
 const path = require('path');
 const fs = require('fs/promises');
+const { existsSync } = require('fs')
 const Cleaner = require('../Cleaner');
+const { log } = require('console');
 
 describe('Класс Cleaner', () => {
-
-  describe('Использование асинхронных статических методов в классе Cleaner', () => {
-    it('Нет вызова синхронных функций из модуля fs', () => {
-      expect(Cleaner.removeFile.toString()).not.toContain('unlinkSync');
-      expect(Cleaner.removeFolder.toString()).not.toContain('rmdirSync');
-    });
-  })
+  it('не использует синхронные методы из модуля fs', () => {
+    expect(Cleaner.removeFile.toString()).not.toContain('unlinkSync');
+    expect(Cleaner.removeFolder.toString()).not.toContain('rmdirSync');
+  });
 
   describe('Функционал удаления файла или папки', () => {
-    it('Статический метод для удаления файла', async () => {
-      const containersLog = (await fs.readdir(path.join('logs', 'containers')))[0];
-      const serversLog = (await fs.readdir(path.join('logs', 'servers')))[0];
+    beforeAll(async () => {
+      await fs.mkdir(path.join(__dirname, '../logs/containers/'), { recursive: true });
+      await fs.mkdir(path.join(__dirname, '../logs/servers/'), { recursive: true });
+      await fs.writeFile(path.join(__dirname, '../logs/containers/containersMockLog.txt'), 'Mock data');
+      await fs.writeFile(path.join(__dirname, '../logs/servers/serversMockLog.txt'), 'Mock data');
+    })
 
-      expect(Cleaner.removeFile(path.join('logs', 'containers', containersLog))).toBeTruthy();
-      expect(Cleaner.removeFile(path.join('logs', 'servers', serversLog))).toBeTruthy();
+    it('Статический метод для удаления файла', async () => {
+      const containersLogArr = await fs.readdir(path.join(__dirname, '../logs/containers'));
+      const serversLogArr = await fs.readdir(path.join(__dirname, '../logs/servers'));
+
+      containersLogArr.forEach(async (file) => {
+        await Cleaner.removeFile(path.join(__dirname, '../logs/containers', file));
+      });
+
+      serversLogArr.forEach(async (file) => {
+        await Cleaner.removeFile(path.join(__dirname, '../logs/servers', file));
+      });
+
+      const containersLogExists = existsSync(path.join(__dirname, '../logs/containers', containersLogArr[0]));
+      const serversLogExists = existsSync(path.join(__dirname, '../logs/servers', serversLogArr[0]));
+
+      expect(containersLogExists).toEqual(false);
+      expect(serversLogExists).toBe(false);
     });
 
     it('Статический метод для удаления папки', async () => {
-      const logsFolder = (await fs.readdir(path.join(__dirname, '..'))).find(folder => folder === 'logs');
+      const logsFolder = path.join(__dirname, '../logs');
 
-      expect(Cleaner.removeFolder(path.join(logsFolder, 'containers'))).toBeTruthy();
-      expect(Cleaner.removeFolder(path.join(logsFolder, 'servers'))).toBeTruthy();
-      expect(Cleaner.removeFolder(path.join(logsFolder))).toBeTruthy();
+      await Cleaner.removeFolder(path.join(logsFolder, 'containers'));
+      await Cleaner.removeFolder(path.join(logsFolder, 'servers'));
+
+      const containersLogFolderExists = existsSync(path.join(logsFolder, 'containers'));
+      const serversLogFolderExists = existsSync(path.join(logsFolder, 'servers'));
+
+      expect(containersLogFolderExists).toEqual(false);
+      expect(serversLogFolderExists).toBe(false);
     });
   });
 });

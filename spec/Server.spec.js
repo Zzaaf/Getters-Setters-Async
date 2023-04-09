@@ -1,4 +1,5 @@
 const fs = require('fs').promises;
+const { existsSync } = require('fs');
 const path = require('path');
 const os = require('os');
 const crypto = require('crypto');
@@ -7,8 +8,8 @@ const Container = require('../Container');
 
 describe('Класс Server', () => {
   const containerInstanceNode = new Container({ baseImage: 'node', architecture: 'x86-64', version: 18.14, id: crypto.randomUUID() });
-  const containerInstancePostges = new Container({ baseImage: 'postgres', architecture: 'x86-64', version: 15.1, id: crypto.randomUUID() });
-  const containerInstancePyhton = new Container({ baseImage: 'python', architecture: 'x86-64', version: 3.9, id: crypto.randomUUID() });
+  const containerInstancePostgres = new Container({ baseImage: 'postgres', architecture: 'x86-64', version: 15.1, id: crypto.randomUUID() });
+  const containerInstancePython = new Container({ baseImage: 'python', architecture: 'x86-64', version: 3.9, id: crypto.randomUUID() });
   const containerInstanceGo = new Container({ baseImage: 'go', architecture: 'x86-64', version: 1.20, id: crypto.randomUUID() });
   const containerInstanceMongo = new Container({ baseImage: 'mongo', architecture: 'x86-64', version: 6.0, id: crypto.randomUUID() });
 
@@ -19,85 +20,85 @@ describe('Класс Server', () => {
     cores: 8,
     allContainers: [
       containerInstanceNode,
-      containerInstancePostges,
-      containerInstancePyhton,
-      containerInstanceGo
-    ]
+      containerInstancePostgres,
+      containerInstancePython,
+      containerInstanceGo,
+    ],
   });
 
-  describe('Запуск сервера', () => {
+  describe('Метод startServer', () => {
     beforeEach(() => {
       serverInstance.startServer();
     });
 
-    it('Функционал запуска сервера, меняется статус', () => {
+    it('запускает сервер, меняя его статус', () => {
       const status = 'online';
       expect(serverInstance.status).toBe(status);
     });
   });
 
-  describe('Остановка сервера', () => {
-    serverInstance.stopServer();
+  describe('Метод stopServer', () => {
+    beforeEach(() => {
+      serverInstance.stopServer();
+    });
 
-    it('Функционал остановки сервера, меняется статус', () => {
+    it('останавливает сервер, меняя его статус', () => {
       const status = 'offline';
-      expect(serverInstance.stopServer()).toBe(status);
+      expect(serverInstance.status).toBe(status);
     });
   });
 
-  describe('Защита от переопределения статуса сервера вручную', () => {
-    it('Метод запуска сервера', () => {
-      serverInstance.startServer();
+  it('не позволяет переопределять статус сервера вручную', () => {
+    serverInstance.startServer();
 
-      serverInstance.status = 'offline';
-      expect(serverInstance.status).toBe('online');
-    })
+    serverInstance.status = 'offline';
+    expect(serverInstance.status).toBe('online');
   });
 
-  describe('Добавление нового контейнера', () => {
-    it('Метод добавления контейнера', () => {
+  describe('Метод addContainer', () => {
+    it('добавляет новый контейнер на сервер', () => {
       serverInstance.addContainer(containerInstanceMongo);
 
       expect(serverInstance.allContainers).toEqual([
         containerInstanceNode,
-        containerInstancePostges,
-        containerInstancePyhton,
+        containerInstancePostgres,
+        containerInstancePython,
         containerInstanceGo,
-        containerInstanceMongo
+        containerInstanceMongo,
       ]);
-    })
+    });
   });
 
-  describe('Удаление контейнера', () => {
-    it('Метод удаления контейнера', () => {
-      const { id } = containerInstancePyhton;
+  describe('Метод delContainer', () => {
+    it('удаляет контейнер с сервера по его идентификатору', () => {
+      const { id } = containerInstancePython;
 
       serverInstance.delContainer(id);
 
       expect(serverInstance.allContainers).toEqual([
         containerInstanceNode,
-        containerInstancePostges,
+        containerInstancePostgres,
         containerInstanceGo,
-        containerInstanceMongo
+        containerInstanceMongo,
       ]);
-    })
+    });
   });
 
-  describe('Логи сервера', () => {
+  describe('Метод writeServerLog', () => {
     beforeEach(async () => {
       await serverInstance.writeServerLog();
     });
 
-    it('Создаётся папка /logs/servers на одном уровне с папкой /spec', async () => {
-      const logsFolder = (await fs.readdir(path.join('.'))).find(folder => folder === 'logs');
-      const serversFolder = (await fs.readdir(path.join('.', logsFolder))).find(folder => folder === 'servers');
+    it('создаёт папку /logs/servers на одном уровне с папкой /spec', async () => {
+      const logsFolderExists = existsSync(path.join(__dirname, '../logs'));
+      const serversFolderExists = existsSync(path.join(__dirname, '../logs/servers'));
 
-      expect(logsFolder).toEqual(logsFolder);
-      expect(serversFolder).toEqual(serversFolder);
-    })
+      expect(logsFolderExists).toBe(true);
+      expect(serversFolderExists).toBe(true);
+    });
 
-    it('Запись лога сервера', async () => {
-      const logFolder = path.join(__dirname, '..', 'logs', 'servers', `${serverInstance.os}-${serverInstance.cpu}.txt`);
+    it('записывает логи сервера в файл', async () => {
+      const logFolder = path.join(__dirname, '../logs/servers', `${serverInstance.os}-${serverInstance.cpu}.txt`);
       const logs = await fs.readFile(logFolder, { encoding: 'utf-8' });
       const lastServerLog = logs.split(os.EOL).at(-2);
 
@@ -105,11 +106,9 @@ describe('Класс Server', () => {
     });
   });
 
-  describe('Использование асинхронных методов в классе Server', () => {
-    it('Нет вызова синхронных функций из модуля fs', () => {
-      expect(serverInstance.writeServerLog.toString()).not.toContain('mkdirSync');
-      expect(serverInstance.writeServerLog.toString()).not.toContain('appendFileSync');
-      expect(serverInstance.writeServerLog.toString()).not.toContain('writeFileSync');
-    });
+  it('не использует синхронные методы из модуля fs', () => {
+    expect(serverInstance.writeServerLog.toString()).not.toContain('mkdirSync');
+    expect(serverInstance.writeServerLog.toString()).not.toContain('appendFileSync');
+    expect(serverInstance.writeServerLog.toString()).not.toContain('writeFileSync');
   });
 });
